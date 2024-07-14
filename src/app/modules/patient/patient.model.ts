@@ -22,6 +22,20 @@ const patientsSchema = new Schema<IPatient, PatientModel>({
     releaseDate: { type: Date },
     hospitalStay: { type: String },
   },
+  bmi: {
+    height: {
+      type: Number
+    },
+    weight: {
+      type: Number
+    },
+    value: {
+      type: Number
+    },
+    category: {
+      type: String
+    },
+  },
   chiefComplaints: [
     {
       complaints: { type: String },

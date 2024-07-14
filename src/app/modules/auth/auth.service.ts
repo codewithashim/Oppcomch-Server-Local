@@ -10,28 +10,25 @@ import {
   IRefreshTokenResponse,
 } from "./auth.interface";
 import { User } from "../users/users.model";
+import  bcrypt  from 'bcrypt';
 
 const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { email, password } = payload;
 
-  const user = new User();
+  const user = await User.findOne({ email }).select("+password");
 
-  const isUserExist = await user.isUserExist(email);
-  
-  if (!isUserExist) {
+  if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }
 
   // check password
-  if (
-    isUserExist.password &&
-    !user.isPasswordMatched(password, isUserExist?.password)
-  ) {
+  const isPasswordMatched = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordMatched) {
     throw new ApiError(httpStatus.UNAUTHORIZED, "Incorrect password");
   }
 
-  // create access token and refresh token
-  const { role, name, phone } = isUserExist;
+  const { role, name, phone } = user;
 
   const accessToken = jwtHelper.createToken(
     {
@@ -59,12 +56,13 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
     name,
     email,
     phone,
+    role,
   };
 
   return {
     accessToken,
     refreshToken,
-    needsPasswordChange: isUserExist.needsPasswordChange,
+    needsPasswordChange: user.needsPasswordChange,
     userDetail,
   };
 };

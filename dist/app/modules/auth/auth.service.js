@@ -18,20 +18,19 @@ const config_1 = __importDefault(require("../../../config"));
 const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 const jwtHelper_1 = require("../../../helpers/jwtHelper");
 const users_model_1 = require("../users/users.model");
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = payload;
-    const user = new users_model_1.User();
-    const isUserExist = yield user.isUserExist(email);
-    if (!isUserExist) {
+    const user = yield users_model_1.User.findOne({ email }).select("+password");
+    if (!user) {
         throw new ApiError_1.default(http_status_1.default.NOT_FOUND, "User not found");
     }
     // check password
-    if (isUserExist.password &&
-        !user.isPasswordMatched(password, isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.password)) {
+    const isPasswordMatched = yield bcrypt_1.default.compare(password, user.password);
+    if (!isPasswordMatched) {
         throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "Incorrect password");
     }
-    // create access token and refresh token
-    const { role, name, phone } = isUserExist;
+    const { role, name, phone } = user;
     const accessToken = jwtHelper_1.jwtHelper.createToken({
         role,
         name,
@@ -48,11 +47,12 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         name,
         email,
         phone,
+        role,
     };
     return {
         accessToken,
         refreshToken,
-        needsPasswordChange: isUserExist.needsPasswordChange,
+        needsPasswordChange: user.needsPasswordChange,
         userDetail,
     };
 });

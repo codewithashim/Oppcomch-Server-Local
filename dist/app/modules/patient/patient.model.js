@@ -23,6 +23,20 @@ const patientsSchema = new mongoose_1.Schema({
         releaseDate: { type: Date },
         hospitalStay: { type: String },
     },
+    bmi: {
+        height: {
+            type: Number
+        },
+        weight: {
+            type: Number
+        },
+        value: {
+            type: Number
+        },
+        category: {
+            type: String
+        },
+    },
     chiefComplaints: [
         {
             complaints: { type: String },

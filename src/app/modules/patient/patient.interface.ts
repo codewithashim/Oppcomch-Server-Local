@@ -18,6 +18,12 @@ export type IPatient = {
     releaseDate: string; 
     hospitalStay: string;
   };
+  bmi :{
+    height: number,
+    weight: number,
+    value: number,
+    category: string,
+  };
   chiefComplaints: {
     complaints: string;
     duration: string;

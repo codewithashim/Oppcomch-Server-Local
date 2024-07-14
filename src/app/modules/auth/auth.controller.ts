@@ -22,7 +22,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     delete result.refreshToken;
   }
 
-  sendReponse<ILoginUserResponse>(res, {
+  sendReponse<any>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Login Successful",
